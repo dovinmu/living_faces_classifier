@@ -2,7 +2,7 @@ import os
 from pandas import DataFrame
 import numpy as np
 
-def loadDF(data_threshold=10):
+def loadDF(data_threshold=10, verbose=False):
     try:
         with open('dataset_dirname') as f:
             dirname = f.read().strip()
@@ -19,7 +19,8 @@ def loadDF(data_threshold=10):
             os.chdir('..')
             skipcount += 1
             continue
-        print(folder)
+        if verbose:
+            print(folder)
         for npy in os.listdir():
             vec = np.load(npy)
             vec = vec/np.linalg.norm(vec)

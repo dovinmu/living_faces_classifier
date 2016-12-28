@@ -8,9 +8,115 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from sklearn.cross_validation import train_test_split
-from sklearn.neighbors import KNeighborsClassifier,NearestNeighbors
+from sklearn.neighbors import KNeighborsClassifier,NearestNeighbors,LSHForest
+from sklearn.neighbors.nearest_centroid import NearestCentroid
 import model_utils
 import numpy as np
+
+def average_distance():
+    pass
+
+def count_correct(train, test, predict_indices):
+    correct = 0
+    for i in range(len(test)):
+        if test.iloc[i]['name'] == train.iloc[predict_indices[i][0]]['name']:
+            correct += 1
+    return correct
+
+def get_correct_and_incorrect_series(train, test, distances, predict_indices):
+    correct = []
+    incorrect = []
+    for i in range(len(test)):
+        if test.iloc[i]['name'] == train.iloc[predict_indices[i][0]]['name']:
+            correct.append(distances[i][0])
+        else:
+            incorrect.append(distances[i][0])
+    return Series(sorted(correct)), Series(sorted(incorrect))
+
+
+def ls_hashing_forest(plot_hists=False):
+    incorrect_sers = []
+    correct_sers = []
+    for threshold in [5, 20]:
+        start_time = time.time()
+        df = model_utils.loadDF(data_threshold=threshold)
+        response = 'name'
+        features = [col for col in df.columns if col not in [response]]
+        test_idx = np.random.uniform(0,1,len(df)) <= 0.3
+        train = df[test_idx==False]
+        test = df[test_idx==True]
+        print('train dataset size: {}, test dataset size: {}'.format(len(train), len(test)))
+
+        lshf = LSHForest(n_candidates=100)
+        lshf.fit(train[features])
+        print('getting nearest neighbors')
+        distances, indices = lshf.kneighbors(test[features], n_neighbors=1)
+        print('plotting data')
+        correct = count_correct(train, test, indices)
+        if plot_hists:
+            correct_ser, incorrect_ser = get_correct_and_incorrect_series(train, test, distances, indices)
+            correct_sers.append(correct_ser)
+            incorrect_sers.append(incorrect_ser)
+            plt.figure()
+            correct_ser.plot(label="correct", kind='hist', alpha=0.5)
+            incorrect_ser.plot(label="incorrect", kind='hist', alpha=0.5)
+            plt.legend(loc='best')
+            plt.style.use('fivethirtyeight')
+            plt.style.use('fivethirtyeight')
+            plt.xlabel('distance')
+            plt.title('LS Hashing Forest distance between points')
+            plt.savefig('lshf_distancediff_thresh={}_n-candidates=100.png'.format(threshold), dpi=300, bbox_inches='tight', pad_inches=0.5)
+            #plt.show()
+            plt.close()
+        percentCorrect = (correct/len(test))
+        print('percent correct: {}'.format(percentCorrect))
+        print('took {} minutes'.format( round((time.time()-start_time)/60,2) ))
+        #ser[threshold] = percentCorrect
+    return correct_sers, incorrect_sers
+    '''
+    ser = Series(ser)
+    print(ser)
+    plt.figure()
+    ser.plot()
+    plt.style.use('fivethirtyeight')
+    plt.xlabel('threshold')
+    plt.ylabel('percent correct')
+    plt.title('LS Hashing Forest accuracy by threshold')
+    plt.show()
+    return ser
+    '''
+
+def nearest_centroid():
+    ser = {}
+    response = 'name'
+    features = None
+    start_time = time.time()
+    for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
+        df = model_utils.loadDF(data_threshold=threshold)
+        if not features:
+            features = [col for col in df.columns if col not in [response]]
+        test_idx = np.random.uniform(0,1,len(df)) <= 0.3
+        train = df[test_idx==False]
+        test = df[test_idx==True]
+        print('train dataset size: {}, test dataset size: {}'.format(len(train), len(test)))
+
+        clf = NearestCentroid()
+        clf.fit(train[features], train[response])
+        preds = clf.predict(test[features])
+        percentCorrect = np.where(preds==test[response],1,0).sum() / float(len(test))
+        print('\tThreshold: {}  Percent Correct: {}'.format(threshold, percentCorrect) )
+        ser[threshold] = percentCorrect
+    print('took {} minutes'.format( round(time.time()-start_time, 2)/60 ))
+    ser = Series(ser)
+    print(ser)
+    ser.plot()
+    plt.style.use('fivethirtyeight')
+    plt.xlabel('threshold')
+    plt.ylabel('percent correct')
+    plt.title('Nearest centroid accuracy by threshold')
+    plt.show()
+    return ser
+
 
 def knn():
     '''
@@ -75,7 +181,7 @@ def knn():
 
 def knn_probabilistic():
     raise NotImplementedError()
-    
+
     '''
     Some code cribbed from http://blog.yhat.com/posts/classification-using-knn-and-python.html
 
@@ -143,7 +249,8 @@ def knn_probabilistic():
             results.append([k, '0.x', high_confidence_and_wrong_count, total_erroneous_confidence, total_correct_confidence])
 
         '''
-        formatter = "{:2}   {:15}   {:20}   {:20}  {:20}  {:20}"
+        formatter = "{:2}   {:15}
+        {:20}   {:20}  {:20}  {:20}"
         print(formatter.format( 'k', 'percent correct', 'wrong w/ high conf.', 'err confidence', 'correct confidence', 'confidence-corrected accuracy' ))
         for row in results:
             print(formatter.format( row[0], row[1], row[2], round(row[3],3), round(row[4],3), round(confidenceAccuracy(row[3],row[4]), 3) ))
