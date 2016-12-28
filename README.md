@@ -1,2 +1,3 @@
-# living_faces_classifier
-Evaluates various models on the effectiveness of classifying high-dimensional vectors computed from the dataset Living Faces of the Wild.
+# Living Faces of the Wild: an exploration of models for facial recognition
+
+![Graph: Nearest centroid accuracy by threshold](images/nearest_centroid1.png)
