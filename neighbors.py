@@ -12,6 +12,7 @@ from sklearn.neighbors import KNeighborsClassifier,NearestNeighbors,LSHForest
 from sklearn.neighbors.nearest_centroid import NearestCentroid
 import model_utils
 import numpy as np
+import time
 
 def average_distance():
     pass
@@ -38,23 +39,29 @@ def ls_hashing_forest(plot_hists=False):
     sers = {}
     incorrect_sers = []
     correct_sers = []
-    for threshold in [5, 20]:
+    threshold = 2
+    df = model_utils.loadDF(data_threshold=threshold)
+    for nest in [5, 10, 15]:
         ser = {}
-        start_time = time.time()
-        df = model_utils.loadDF(data_threshold=threshold)
         response = 'name'
         features = [col for col in df.columns if col not in [response]]
         test_idx = np.random.uniform(0,1,len(df)) <= 0.3
         train = df[test_idx==False]
         test = df[test_idx==True]
         print('train dataset size: {}, test dataset size: {}'.format(len(train), len(test)))
-
-        lshf = LSHForest(n_candidates=100)
-        lshf.fit(train[features])
-        print('getting nearest neighbors')
-        distances, indices = lshf.kneighbors(test[features], n_neighbors=1)
-        print('plotting data')
-        correct = count_correct(train, test, indices)
+        for ncand in range(1, 52, 10):
+            start_time = time.time()
+            lshf = LSHForest(n_candidates=ncand, n_estimators=nest)
+            lshf.fit(train[features])
+            print('getting nearest neighbors, n_candidates={}, n_estimators={}'.format(ncand,nest))
+            distances, indices = lshf.kneighbors(test[features], n_neighbors=1)
+            print('plotting data')
+            correct = count_correct(train, test, indices)
+            percentCorrect = (correct/len(test))
+            print('percent correct: {}'.format(percentCorrect))
+            print('took {} minutes'.format( round((time.time()-start_time)/60,2) ))
+            ser[ncand] = percentCorrect
+        sers[nest] = ser
         if plot_hists:
             correct_ser, incorrect_ser = get_correct_and_incorrect_series(train, test, distances, indices)
             correct_sers.append(correct_ser)
@@ -68,25 +75,22 @@ def ls_hashing_forest(plot_hists=False):
             plt.xlabel('distance')
             plt.title('LS Hashing Forest distance between points')
             plt.savefig('lshf_distancediff_thresh={}_n-candidates=100.png'.format(threshold), dpi=300, bbox_inches='tight', pad_inches=0.5)
-            #plt.show()
             plt.close()
-        percentCorrect = (correct/len(test))
-        print('percent correct: {}'.format(percentCorrect))
-        print('took {} minutes'.format( round((time.time()-start_time)/60,2) ))
-        #ser[threshold] = percentCorrect
     if plot_hists:
         return correct_sers, incorrect_sers
-
-    ser = Series(ser)
-    print(ser)
     plt.figure()
-    ser.plot()
+    for nest in sorted(sers.keys()):
+        ser = sers[nest]
+        ser = Series(ser)
+        #print(ser)
+        ser.plot(label=str(nest))
     plt.style.use('fivethirtyeight')
-    plt.xlabel('threshold')
+    plt.xlabel('n_estimators')
     plt.ylabel('percent correct')
-    plt.title('LS Hashing Forest accuracy by threshold')
-    plt.show()
-    return ser
+    plt.title('LS Hashing Forest accuracy by n-estimators')
+    plt.legend(loc='best')
+    plt.savefig('lshf_accuracy_by_n-esimators.png', dpi=300, bbox_inches='tight', pad_inches=0.5)
+    return sers
 
 
 def nearest_centroid():
