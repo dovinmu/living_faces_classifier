@@ -35,9 +35,11 @@ def get_correct_and_incorrect_series(train, test, distances, predict_indices):
 
 
 def ls_hashing_forest(plot_hists=False):
+    sers = {}
     incorrect_sers = []
     correct_sers = []
     for threshold in [5, 20]:
+        ser = {}
         start_time = time.time()
         df = model_utils.loadDF(data_threshold=threshold)
         response = 'name'
@@ -72,8 +74,9 @@ def ls_hashing_forest(plot_hists=False):
         print('percent correct: {}'.format(percentCorrect))
         print('took {} minutes'.format( round((time.time()-start_time)/60,2) ))
         #ser[threshold] = percentCorrect
-    return correct_sers, incorrect_sers
-    '''
+    if plot_hists:
+        return correct_sers, incorrect_sers
+
     ser = Series(ser)
     print(ser)
     plt.figure()
@@ -84,7 +87,7 @@ def ls_hashing_forest(plot_hists=False):
     plt.title('LS Hashing Forest accuracy by threshold')
     plt.show()
     return ser
-    '''
+
 
 def nearest_centroid():
     ser = {}
