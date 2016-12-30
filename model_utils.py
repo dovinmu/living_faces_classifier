@@ -32,3 +32,13 @@ def loadDF(data_threshold=10, verbose=False):
     df = DataFrame(vec_list,columns=['name', *([i for i in range(4096)])])
     os.chdir(working_dir)
     return df
+
+def print_stats_table():
+    formatter = "\n{:10}\t{:15}\t{:15}"
+
+    table = formatter.format( 'threshold', 'vectors', 'people' )
+    for threshold in [1,2,4,6,8,10,20,30,40,50]:
+        df = loadDF(data_threshold=threshold)
+        table += formatter.format( threshold, len(df), len(df['name'].unique()) )
+
+    print(table)

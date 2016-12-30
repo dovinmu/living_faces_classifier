@@ -5,7 +5,7 @@
 We can vary how many vectors we load into the dataset as a kind of hyperparameter for all our models. Basically we can exclude people with fewer than `threshold` vectors to see how much our accuracy goes up. For any neighbors-based supervised model, letting in all the data with a threshold of 1 guarantees that all the people with only one vector will be wrong since their nearest neighbors will always be another person.
 
 ```
-threshold 	 vectors        	people         
+threshold 	 vectors           people         
  1	          13199	           5736
  2	           9137	           1674
  4	           6712	            607
