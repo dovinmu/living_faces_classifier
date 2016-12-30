@@ -25,19 +25,19 @@ As a baseline, we can start with Nearest Centroid. There are no hyperparameters 
 ![Graph: Nearest centroid accuracy by threshold](images/nearest_centroid1.png)
 
 That graph took 2 minutes to compute, with the following accuracy scores:
-<table>
-<tr><td>threshold</td><td>accuracy</td></tr>
-<tr><td>1</td><td>0.550191</td></tr>
-<tr><td>2</td><td>0.777904</td></tr>
-<tr><td>4</td><td>0.931603</td></tr>
-<tr><td>6</td><td>0.970807</td></tr>
-<tr><td>8</td><td>0.970946</td></tr>
-<tr><td>10</td><td>0.977169</td></tr>
-<tr><td>20</td><td>0.987254</td></tr>
-<tr><td>30</td><td>0.991678</td></tr>
-<tr><td>40</td><td>0.987250</td></tr>
-<tr><td>50</td><td>0.986577</td></tr>
-</table>
+```
+threshold 	accuracy       	time (seconds)
+ 1	         0.5453	            7.0
+ 2	         0.7753	            1.2
+ 4	         0.9342	            0.5
+ 6	         0.9633	            0.3
+ 8	         0.9689	            0.3
+10	         0.9772	            0.2
+20	          0.986	            0.2
+30	          0.987	            0.3
+40	         0.9914	            0.1
+50	         0.9958	            0.1
+```
 
 ### k-nearest neighbors
 ![Graph: comparison of k-nearest neighbors by n_neighbors and threshold](images/knn_2-50.png)

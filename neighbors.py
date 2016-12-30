@@ -1,5 +1,4 @@
 
-import os
 import time
 import random
 import numpy as np
@@ -97,9 +96,11 @@ def nearest_centroid():
     ser = {}
     response = 'name'
     features = None
-    start_time = time.time()
+    formatter = "\n{:10}\t{:15}\t{:15}"
+    table = formatter.format( 'threshold', 'accuracy', 'time (minutes)' )
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
         df = model_utils.loadDF(data_threshold=threshold)
+        start_time = time.time()
         if not features:
             features = [col for col in df.columns if col not in [response]]
         test_idx = np.random.uniform(0,1,len(df)) <= 0.3
@@ -113,7 +114,9 @@ def nearest_centroid():
         percentCorrect = np.where(preds==test[response],1,0).sum() / float(len(test))
         print('\tThreshold: {}  Percent Correct: {}'.format(threshold, percentCorrect) )
         ser[threshold] = percentCorrect
-    print('took {} minutes'.format( round(time.time()-start_time, 2)/60 ))
+        minutes_taken = round((time.time()-start_time), 1)
+        print('took {} minutes'.format( minutes_taken ))
+        table += formatter.format( threshold, round(percentCorrect,4), minutes_taken )
     ser = Series(ser)
     print(ser)
     ser.plot()
@@ -122,6 +125,7 @@ def nearest_centroid():
     plt.ylabel('percent correct')
     plt.title('Nearest centroid accuracy by threshold')
     plt.show()
+    print(table)
     return ser
 
 
