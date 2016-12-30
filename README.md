@@ -21,7 +21,7 @@ threshold 	 vectors           people
 
 ### Nearest centroid
 
-As a baseline, we can start with Nearest Centroid. There are no hyperparameters for Nearest Centroid, so this is just a graph showing how well it performs as we exclude more and more of the sparser people we're trying to identify.
+As a baseline, we can start with Nearest Centroid.
 
 ![Graph: Nearest centroid accuracy by threshold](images/nearest_centroid1.png)
 
@@ -39,6 +39,8 @@ threshold 	accuracy       	time (seconds)
 40	         0.9914	            0.1
 50	         0.9958	            0.1
 ```
+
+![Graph: Nearest centroid accuracy by threshold](images/nearest_centroid_thresholds_shrink.png)
 
 ### k-nearest neighbors
 ![Graph: comparison of k-nearest neighbors by n_neighbors and threshold](images/knn_2-50.png)
@@ -66,7 +68,7 @@ That graph took hours to compute, mostly because of the n-estimators=15: the med
   41            15            0.6867           7.9
   51            15            0.6987          24.6
 ```
-These aren't very good results. They all pale in comparison to nearest centroid, which gets better accuracy than all these with a fraction of the time.
+These aren't very good results. They all pale in comparison to nearest centroid, which gets better accuracy than all these with several orders of magnitude less time.
 
 ### Separating correct and incorrect predictions by distance
 ![Histogram: comparison of distance between a vector and its nearest neighbor using LSHForest, separated by correct and incorrect predictions](images/lshf_distancediff_thresh=1_n-candidates=100.png)

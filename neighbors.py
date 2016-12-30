@@ -93,40 +93,46 @@ def ls_hashing_forest(plot_hists=False):
 
 
 def nearest_centroid():
-    ser = {}
+    sers = {}
     response = 'name'
     features = None
-    formatter = "\n{:10}\t{:15}\t{:15}"
-    table = formatter.format( 'threshold', 'accuracy', 'time (seconds)' )
+    formatter = "\n{:10}\t{:15}\t{:15}\t{:15}"
+    table = formatter.format( 'threshold', 'accuracy', 'shrink_thresh', 'time (seconds)' )
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
+        ser = {}
         df = model_utils.load_dataframe(data_threshold=threshold)
-        start_time = time.time()
         if not features:
             features = [col for col in df.columns if col not in [response]]
         test_idx = np.random.uniform(0,1,len(df)) <= 0.3
         train = df[test_idx==False]
         test = df[test_idx==True]
         print('train dataset size: {}, test dataset size: {}'.format(len(train), len(test)))
-
-        clf = NearestCentroid()
-        clf.fit(train[features], train[response])
-        preds = clf.predict(test[features])
-        percentCorrect = np.where(preds==test[response],1,0).sum() / float(len(test))
-        print('\tThreshold: {}  Percent Correct: {}'.format(threshold, percentCorrect) )
-        ser[threshold] = percentCorrect
-        minutes_taken = round((time.time()-start_time), 1)
-        print('took {} seconds'.format( minutes_taken ))
-        table += formatter.format( threshold, round(percentCorrect,4), minutes_taken )
-    ser = Series(ser)
-    print(ser)
-    ser.plot()
+        for shrink in np.arange(0, 3.1, 0.2):
+            start_time = time.time()
+            clf = NearestCentroid(shrink_threshold=shrink)
+            clf.fit(train[features], train[response])
+            preds = clf.predict(test[features])
+            percentCorrect = np.where(preds==test[response],1,0).sum() / float(len(test))
+            print('\tThreshold: {}  Percent Correct: {}  Shrink threshold: {}'.format(threshold, percentCorrect, shrink ))
+            ser[shrink] = percentCorrect
+            seconds_taken = round((time.time()-start_time), 1)
+            table += formatter.format( threshold, round(percentCorrect,4), round(shrink,1), seconds_taken )
+            print('took {} seconds'.format( seconds_taken ))
+        sers[threshold] = ser
+    for threshold in sorted(sers):
+        ser = sers[threshold]
+        print(ser)
+        ser = Series(ser)
+        ser.plot(label=threshold)
     plt.style.use('fivethirtyeight')
-    plt.xlabel('threshold')
+    plt.style.use('fivethirtyeight')
+    plt.xlabel('shrink threshold')
     plt.ylabel('percent correct')
-    plt.title('Nearest centroid accuracy by threshold')
+    plt.legend(loc='best')
+    plt.title('Nearest centroid accuracy by shrink threshold')
     plt.show()
     print(table)
-    return ser
+    return sers
 
 
 def knn():
