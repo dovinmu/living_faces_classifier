@@ -2,7 +2,7 @@ import os
 from pandas import DataFrame
 import numpy as np
 
-def loadDF(data_threshold=10, verbose=False):
+def load_dataframe(data_threshold=10, verbose=False):
     try:
         with open('dataset_dirname') as f:
             dirname = f.read().strip()

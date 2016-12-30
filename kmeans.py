@@ -52,7 +52,7 @@ for threshold in [2, 4, 6, 8, 10, 20, 30, 40, 50]:
     if threshold in sers:
         continue
     print('computing with threshold={}'.format(threshold))
-    df = model_utils.loadDF(data_threshold=threshold)
+    df = model_utils.load_dataframe(data_threshold=threshold)
     df2 = df.drop(df.columns[0], axis=1)
     results = {}
     for n_clusters in range(100,801,25):

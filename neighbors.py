@@ -39,7 +39,7 @@ def ls_hashing_forest(plot_hists=False):
     incorrect_sers = []
     correct_sers = []
     threshold = 2
-    df = model_utils.loadDF(data_threshold=threshold)
+    df = model_utils.load_dataframe(data_threshold=threshold)
     for nest in [5, 10, 15]:
         ser = {}
         response = 'name'
@@ -99,7 +99,7 @@ def nearest_centroid():
     formatter = "\n{:10}\t{:15}\t{:15}"
     table = formatter.format( 'threshold', 'accuracy', 'time (seconds)' )
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
-        df = model_utils.loadDF(data_threshold=threshold)
+        df = model_utils.load_dataframe(data_threshold=threshold)
         start_time = time.time()
         if not features:
             features = [col for col in df.columns if col not in [response]]
@@ -143,7 +143,7 @@ def knn():
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
         if threshold in sers:
             continue
-        df = model_utils.loadDF(data_threshold=threshold)
+        df = model_utils.load_dataframe(data_threshold=threshold)
         print('loaded data with threshold={}'.format(threshold))
 
         if len(df) > 10000:
@@ -211,7 +211,7 @@ def knn_probabilistic():
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
         if threshold in sers:
             continue
-        df = model_utils.loadDF(data_threshold=threshold)
+        df = model_utils.load_dataframe(data_threshold=threshold)
         print('loaded data with threshold={}'.format(threshold))
 
         if len(df) > 10000:
