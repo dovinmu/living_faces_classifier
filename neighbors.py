@@ -97,7 +97,7 @@ def nearest_centroid():
     response = 'name'
     features = None
     formatter = "\n{:10}\t{:15}\t{:15}"
-    table = formatter.format( 'threshold', 'accuracy', 'time (minutes)' )
+    table = formatter.format( 'threshold', 'accuracy', 'time (seconds)' )
     for threshold in [1, 2, 4, 6, 8, 10, 20, 30, 40, 50]:
         df = model_utils.loadDF(data_threshold=threshold)
         start_time = time.time()
@@ -115,7 +115,7 @@ def nearest_centroid():
         print('\tThreshold: {}  Percent Correct: {}'.format(threshold, percentCorrect) )
         ser[threshold] = percentCorrect
         minutes_taken = round((time.time()-start_time), 1)
-        print('took {} minutes'.format( minutes_taken ))
+        print('took {} seconds'.format( minutes_taken ))
         table += formatter.format( threshold, round(percentCorrect,4), minutes_taken )
     ser = Series(ser)
     print(ser)
